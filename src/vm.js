@@ -848,6 +848,67 @@ VM.prototype.setTags = function(tags, fingerprint, callback) {
 };
 
 /**
+ * Sets labels on an instance.
+ *
+ * @see [Instances: setLabels API Documentation]{@link https://cloud.google.com/compute/docs/reference/v1/instances/setLabels}
+ *
+ * @param {object} labels - New labels.
+ * @param {function=} callback - The callback function.
+ * @param {?error} callback.err - An error returned while making this request.
+ * @param {Operation} callback.operation - An operation object
+ *     that can be used to check the status of the request.
+ * @param {object} callback.apiResponse - The full API response.
+ *
+ * @example
+ * const Compute = require('@google-cloud/compute');
+ * const compute = new Compute();
+ * const zone = compute.zone('zone-name');
+ * const vm = zone.vm('vm-name');
+ *
+ * const labels = {
+ *   name: 'wrench',
+ *   mass: '1.3kg',
+ *   count: '3',
+ * };
+ *
+ * vm.setLabels(labels, function(err, operation, apiResponse) {
+ *   // `operation` is an Operation object that can be used to check the status
+ *   // of the request.
+ * });
+ *
+ * //-
+ * // If the callback is omitted, we'll return a Promise.
+ * //-
+ * vm.setLabels(labels).then(function(data) {
+ *   const operation = data[0];
+ *   const apiResponse = data[1];
+ * });
+ */
+VM.prototype.setLabels = function(labels, callback) {
+  this.get(function(err, vm, apiResponse) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    var labelFingerprint = vm.labelFingerprint;
+    var body = {
+      labels,
+      labelFingerprint,
+    };
+
+    this.request(
+      {
+        method: 'POST',
+        uri: '/setLabels',
+        json: body,
+      },
+      callback || common.util.noop,
+    );
+  });
+};
+
+/**
  * Start the instance.
  *
  * @see [Instances: start API Documentation]{@link https://cloud.google.com/compute/docs/reference/v1/instances/start}
